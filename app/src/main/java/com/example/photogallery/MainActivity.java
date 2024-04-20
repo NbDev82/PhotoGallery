@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -17,10 +16,10 @@ import com.example.photogallery.fragment.ProcessingFragment;
 import com.example.photogallery.fragment.ResultFragment;
 import com.example.photogallery.listener.DownloadActionListener;
 import com.example.photogallery.model.DownloadItem;
+import com.example.photogallery.service.ImageService;
+import com.example.photogallery.service.ImageServiceImpl;
 import com.google.android.material.navigation.NavigationBarView;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,9 +40,11 @@ public class MainActivity extends AppCompatActivity
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ImageService imageService = new ImageServiceImpl();
+
         inputFragment = new InputFragment();
-        resultFragment = new ResultFragment();
-        processingFragment = new ProcessingFragment(resultFragment);
+        resultFragment = new ResultFragment(imageService);
+        processingFragment = new ProcessingFragment();
 
         ArrayList<Fragment> fragments = new ArrayList<>();
         fragments.add(inputFragment);

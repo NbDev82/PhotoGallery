@@ -21,11 +21,9 @@ import java.util.List;
 
 public class ItemProcessingAdapter extends RecyclerView.Adapter<ItemProcessingAdapter.ItemProcessingViewHolder> implements ViewHolderCallBack {
     private List<DownloadItem> downloadItems;
-    private AddItemListener listener;
 
-    public ItemProcessingAdapter(List<DownloadItem> downloadItems, AddItemListener listener) {
+    public ItemProcessingAdapter(List<DownloadItem> downloadItems) {
         this.downloadItems = downloadItems;
-        this.listener = listener;
     }
 
     public void setDownloadItems(List<DownloadItem> downloadItems){
@@ -90,7 +88,7 @@ public class ItemProcessingAdapter extends RecyclerView.Adapter<ItemProcessingAd
         DownloadTask downloadTask = new DownloadTask(binding, () -> {
 //            int pos = downloadItems.indexOf(item);
 //            removeItem(pos);
-            listener.add(item);
+//            listener.add(item);
         }, outputStream);
         downloadTask.execute(item.getUrl());
     }
