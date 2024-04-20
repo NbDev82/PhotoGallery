@@ -18,13 +18,11 @@ import java.util.List;
 
 public class ProcessingFragment extends Fragment {
     private FragmentProcessingBinding binding;
-    private AddItemListener listener;
 
     private ItemProcessingAdapter adapter;
     private List<DownloadItem> downloadItems;
 
-    public ProcessingFragment(AddItemListener listener) {
-        this.listener = listener;
+    public ProcessingFragment() {
     }
 
     @Override
@@ -33,7 +31,7 @@ public class ProcessingFragment extends Fragment {
         binding = FragmentProcessingBinding.inflate(inflater, container, false);
         downloadItems = new ArrayList<>();
 
-        adapter = new ItemProcessingAdapter(downloadItems, listener);
+        adapter = new ItemProcessingAdapter(downloadItems);
         binding.rclItems.setAdapter(adapter);
         return binding.getRoot();
     }
