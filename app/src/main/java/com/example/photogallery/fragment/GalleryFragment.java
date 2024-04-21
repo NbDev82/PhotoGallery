@@ -25,7 +25,7 @@ public class GalleryFragment extends Fragment implements PhotoListener {
     private PhotoAdapter mPhotoAdapter;
     private ArrayList<Photo> mPhotos;
 
-    private PhotoRepos photoRepos;
+    private final PhotoRepos photoRepos;
 
     private FragmentGalleryBinding binding;
 
@@ -54,13 +54,12 @@ public class GalleryFragment extends Fragment implements PhotoListener {
 
     private void loadImages() {
         if(mPhotoAdapter.isEmpty()) {
-            String folderPath = "images";
-            photoRepos.fetchAllImageUris(folderPath,
+            photoRepos.fetchAllImageUris(
                     imageUris -> {
                         photoRepos.convertUriListToBitmaps(imageUris,
                                 downloadedImages -> {
                                     for (Photo photo : downloadedImages) {
-                                        mPhotoAdapter.addImage(new Photo(photo.getImg_name(), photo.getImg()));
+                                        mPhotoAdapter.addImage(new Photo(photo.getUri()));
                                     }
                                 },
                                 e -> {
@@ -75,15 +74,9 @@ public class GalleryFragment extends Fragment implements PhotoListener {
 
     @Override
     public void onImageClick(Photo photo) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-        photo.getImg().compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-
         Intent intent = new Intent(getContext(), PhotoActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra("bitmapBytes", byteArray);
+        intent.setData(photo.getUri());
         startActivity(intent);
     }
 }

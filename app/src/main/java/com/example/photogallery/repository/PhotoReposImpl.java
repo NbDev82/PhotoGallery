@@ -1,7 +1,5 @@
 package com.example.photogallery.repository;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 
 import com.example.photogallery.model.Photo;
@@ -22,10 +20,8 @@ public class PhotoReposImpl implements PhotoRepos {
     }
 
     @Override
-    public void fetchAllImageUris(String folderPath,
-                                  final OnSuccessListener<List<Uri>> onSuccessListener,
+    public void fetchAllImageUris(final OnSuccessListener<List<Uri>> onSuccessListener,
                                   final OnFailureListener onFailureListener) {
-
         storageReference.listAll()
                 .addOnSuccessListener(listResult -> {
                     List<Uri> imageUris = new ArrayList<>();
@@ -47,27 +43,11 @@ public class PhotoReposImpl implements PhotoRepos {
                                         final OnFailureListener onFailureListener) {
         List<Photo> photos = new ArrayList<>();
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-
         for (Uri uri : imageUris) {
-            StorageReference storageRef = storage.getReferenceFromUrl(uri.toString());
-
-            storageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
-                String url = uri.getPath();
-                String[] pathSegments = url.split("/");
-                String filename = pathSegments[pathSegments.length - 1];
-
-                Photo photo = new Photo(filename, bitmap);
-                photos.add(photo);
-
-                if (photos.size() == imageUris.size()) {
-                    onSuccessListener.onSuccess(photos);
-                }
-            }).addOnFailureListener(e -> {
-                onFailureListener.onFailure(e);
-            });
+            photos.add(new Photo(uri));
+            if (photos.size() == imageUris.size()) {
+                onSuccessListener.onSuccess(photos);
+            }
         }
     }
 }
