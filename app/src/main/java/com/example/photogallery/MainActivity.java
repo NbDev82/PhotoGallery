@@ -7,31 +7,22 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.photogallery.databinding.ActivityMainBinding;
-import com.example.photogallery.fragment.InputFragment;
-import com.example.photogallery.fragment.ProcessingFragment;
-import com.example.photogallery.fragment.ResultFragment;
-import com.example.photogallery.listener.DownloadActionListener;
-import com.example.photogallery.model.DownloadItem;
-import com.example.photogallery.service.ImageService;
-import com.example.photogallery.service.ImageServiceImpl;
+import com.example.photogallery.fragment.GalleryFragment;
+import com.example.photogallery.fragment.UploadFragment;
 import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements InputFragment.OnDialogDismissedListener, DownloadActionListener {
+public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private ProcessingFragment processingFragment;
-    private ResultFragment resultFragment;
-    private InputFragment inputFragment;
-    private DownloadTask downloadTask;
+    private GalleryFragment galleryFragment;
+    private UploadFragment uploadFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +31,21 @@ public class MainActivity extends AppCompatActivity
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        ImageService imageService = new ImageServiceImpl();
+        setupBottomNavigationView();
+    }
 
-        inputFragment = new InputFragment();
-        resultFragment = new ResultFragment(imageService);
-        processingFragment = new ProcessingFragment();
+    private void setupBottomNavigationView() {
+        galleryFragment = new GalleryFragment();
+        uploadFragment = new UploadFragment();
 
         ArrayList<Fragment> fragments = new ArrayList<>();
-        fragments.add(inputFragment);
-        fragments.add(processingFragment);
-        fragments.add(resultFragment);
+        fragments.add(galleryFragment);
+        fragments.add(uploadFragment);
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, fragments);
         binding.viewPagerHome.setAdapter(viewPagerAdapter);
 
-        List<Integer> tabIds = Arrays.asList(R.id.input_tab, R.id.processing_tab, R.id.result_tab);
+        List<Integer> tabIds = Arrays.asList(R.id.tab_gallery, R.id.tab_upload);
 
         binding.viewPagerHome.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -79,34 +70,5 @@ public class MainActivity extends AppCompatActivity
 
         int firstFragmentPosition = 2;
         binding.viewPagerHome.setCurrentItem(firstFragmentPosition, false);
-    }
-
-    @Override
-    public void onDialogDismissed() {
-        binding.viewPagerHome.setCurrentItem(1, false);
-    }
-
-    @Override
-    public void onStartDownload(String fileName, String url, String format) {
-        try {
-            DownloadItem downloadItem = new DownloadItem(fileName,url, 0, DownloadItem.EStatus.DOWNLOADING, format);
-            processingFragment.addItemProcessingView(downloadItem);
-        } catch (Exception e) {
-            Log.e("MainActivity", "Error starting download: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void onPauseDownload() {
-        if (downloadTask != null) {
-            downloadTask.togglePause();
-        }
-    }
-
-    @Override
-    public void onResumeDownload() {
-        if (downloadTask != null) {
-            downloadTask.togglePause();
-        }
     }
 }

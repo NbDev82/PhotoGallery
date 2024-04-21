@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/input_tab"
-        android:icon="@android:drawable/ic_menu_add"
-        android:title="Download" />
+        android:id="@+id/tab_gallery"
+        android:icon="@drawable/ic_media_image_list"
+        android:title="Gallery" />
     <item
-        android:id="@+id/processing_tab"
-        android:icon="@android:drawable/ic_media_play"
-        android:title="Waiting"/>
-    <item
-        android:id="@+id/result_tab"
-        android:icon="@android:drawable/stat_sys_download_done"
-        android:title="Result"/>
+        android:id="@+id/tab_upload"
+        android:icon="@drawable/ic_cloud_upload"
+        android:title="Upload"/>
 </menu>

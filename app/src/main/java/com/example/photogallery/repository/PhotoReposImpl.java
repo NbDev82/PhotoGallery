@@ -1,4 +1,4 @@
-package com.example.photogallery.service;
+package com.example.photogallery.repository;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,11 +12,11 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImageServiceImpl implements ImageService {
+public class PhotoReposImpl implements PhotoRepos {
 
     private StorageReference storageReference;
 
-    public ImageServiceImpl() {
+    public PhotoReposImpl() {
         storageReference = FirebaseStorage.getInstance().getReference();
     }
 
@@ -42,8 +42,8 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public void convertUriListToBitmaps(List<Uri> imageUris,
-                                               final OnSuccessListener<List<Bitmap>> onSuccessListener,
-                                               final OnFailureListener onFailureListener) {
+                                        final OnSuccessListener<List<Bitmap>> onSuccessListener,
+                                        final OnFailureListener onFailureListener) {
         List<Bitmap> bitmaps = new ArrayList<>();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
