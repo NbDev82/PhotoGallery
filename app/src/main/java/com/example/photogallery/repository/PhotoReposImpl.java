@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
+import com.example.photogallery.model.Photo;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -42,9 +43,9 @@ public class PhotoReposImpl implements PhotoRepos {
 
     @Override
     public void convertUriListToBitmaps(List<Uri> imageUris,
-                                        final OnSuccessListener<List<Bitmap>> onSuccessListener,
+                                        final OnSuccessListener<List<Photo>> onSuccessListener,
                                         final OnFailureListener onFailureListener) {
-        List<Bitmap> bitmaps = new ArrayList<>();
+        List<Photo> photos = new ArrayList<>();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -53,10 +54,16 @@ public class PhotoReposImpl implements PhotoRepos {
 
             storageRef.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                bitmaps.add(bitmap);
 
-                if (bitmaps.size() == imageUris.size()) {
-                    onSuccessListener.onSuccess(bitmaps);
+                String url = uri.getPath();
+                String[] pathSegments = url.split("/");
+                String filename = pathSegments[pathSegments.length - 1];
+
+                Photo photo = new Photo(filename, bitmap);
+                photos.add(photo);
+
+                if (photos.size() == imageUris.size()) {
+                    onSuccessListener.onSuccess(photos);
                 }
             }).addOnFailureListener(e -> {
                 onFailureListener.onFailure(e);

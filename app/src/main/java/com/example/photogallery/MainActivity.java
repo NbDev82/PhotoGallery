@@ -12,6 +12,8 @@ import android.view.MenuItem;
 import com.example.photogallery.databinding.ActivityMainBinding;
 import com.example.photogallery.fragment.GalleryFragment;
 import com.example.photogallery.fragment.UploadFragment;
+import com.example.photogallery.repository.PhotoRepos;
+import com.example.photogallery.repository.PhotoReposImpl;
 import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
@@ -35,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigationView() {
-        galleryFragment = new GalleryFragment();
+        PhotoRepos photoRepos = new PhotoReposImpl();
+
+        galleryFragment = new GalleryFragment(photoRepos);
         uploadFragment = new UploadFragment();
 
         ArrayList<Fragment> fragments = new ArrayList<>();

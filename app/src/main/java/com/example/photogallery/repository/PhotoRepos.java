@@ -1,8 +1,8 @@
 package com.example.photogallery.repository;
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 
+import com.example.photogallery.model.Photo;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -14,6 +14,6 @@ public interface PhotoRepos {
                            final OnFailureListener onFailureListener);
 
     void convertUriListToBitmaps(List<Uri> imageUris,
-                                 final OnSuccessListener<List<Bitmap>> onSuccessListener,
+                                 final OnSuccessListener<List<Photo>> onSuccessListener,
                                  final OnFailureListener onFailureListener);
 }
