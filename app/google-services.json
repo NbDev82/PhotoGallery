@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "965690926490",
+    "project_id": "facebookphotodemo",
+    "storage_bucket": "facebookphotodemo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965690926490:android:d74ee3e36b80b4b1f4c623",
+        "android_client_info": {
+          "package_name": "com.example.facebookphoto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrUYuhGAvAFq4d8uv9ogMk4nYyoxGfQF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965690926490:android:99ab2db19a9fbda3f4c623",
+        "android_client_info": {
+          "package_name": "com.example.photogallery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrUYuhGAvAFq4d8uv9ogMk4nYyoxGfQF4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

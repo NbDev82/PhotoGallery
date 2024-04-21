@@ -11,8 +11,9 @@
         android:layout_height="match_parent" />
 
     <androidx.cardview.widget.CardView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:outlineSpotShadowColor="@color/black"
         android:layout_alignParentBottom="true">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -20,8 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            app:itemIconTint="@color/color_item_bnv_home"
-            app:itemTextColor="@color/color_item_bnv_home"
             app:menu="@menu/menu_bottom_nav_home"/>
 
     </androidx.cardview.widget.CardView>
