@@ -1,6 +1,9 @@
 package com.example.photogallery.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +14,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.photogallery.R;
 import com.example.photogallery.listener.PhotoListener;
 import com.example.photogallery.model.Photo;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class PhotoAdapter extends ArrayAdapter<Photo> {
@@ -40,11 +49,16 @@ public class PhotoAdapter extends ArrayAdapter<Photo> {
         }
 
         Photo img = getItem(position);
-        TextView courseTV = listitemView.findViewById(R.id.idTVName);
-        ImageView courseIV = listitemView.findViewById(R.id.idIVImg);
+        TextView photoTV = listitemView.findViewById(R.id.idTVName);
+        ImageView photoIV = listitemView.findViewById(R.id.idIVImg);
 
-        courseTV.setText(img.getImg_name());
-        courseIV.setImageBitmap(img.getImg());
+        Glide.with(listitemView)
+                .load(img.getUri())
+                .error(R.drawable.ic_error)
+                .placeholder(R.drawable.ic_loading)
+                .into(photoIV);
+
+        photoTV.setText(img.getPhoto_name());
 
         listitemView.setOnClickListener(v -> {
             listener.onImageClick(img);
