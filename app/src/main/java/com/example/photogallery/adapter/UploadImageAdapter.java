@@ -1,16 +1,15 @@
 package com.example.photogallery.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.photogallery.databinding.ItemUploadImageBinding;
 import com.example.photogallery.model.UploadImage;
+import com.example.photogallery.util.Utils;
 
 import java.util.List;
 
@@ -56,6 +55,10 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
 
         public void bind(UploadImage uploadImage) {
             binding.txvFileName.setText(uploadImage.getFileName());
+            long fileSize = uploadImage.getSizeInBytes();
+            String fileSizeStr = "Size: " + Utils.formatFileSize(fileSize);
+            binding.txvFileSize.setText(fileSizeStr);
+            binding.progressBar.setVisibility(uploadImage.isUploading() ? View.VISIBLE : View.GONE);
             binding.progressBar.setProgress(uploadImage.getProgress());
             binding.imgPreview.setImageURI(uploadImage.getUri());
         }

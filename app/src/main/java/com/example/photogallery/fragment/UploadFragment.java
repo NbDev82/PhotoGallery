@@ -53,17 +53,6 @@ public class UploadFragment extends Fragment {
         setupListeners();
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        selectedImages.add(new UploadImage());
-        selectedImages.add(new UploadImage());
-        selectedImages.add(new UploadImage());
-        selectedImages.add(new UploadImage());
-        selectedImages.add(new UploadImage());
-    }
-
     private void setupListeners() {
         binding.btnSelectImg.setOnClickListener(v -> {
             Intent intent = new Intent();
@@ -108,9 +97,9 @@ public class UploadFragment extends Fragment {
 
     private void addUriToSelectedImages(Uri uri) {
         String fileName = Utils.getFileName(requireContext(), uri);
-        long size = Utils.getFileSize(requireContext(), uri);
+        long sizeInBytes = Utils.getFileSize(requireContext(), uri);
         UploadImage uploadImage =
-                new UploadImage(fileName, uri, 0, false, size);
+                new UploadImage(fileName, uri, 0, false, sizeInBytes);
         addImageToSelectedImages(uploadImage);
     }
 

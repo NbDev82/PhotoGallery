@@ -7,17 +7,17 @@ public class UploadImage {
     private Uri uri;
     private int progress;
     private boolean isUploading;
-    private long size;
+    private long sizeInBytes;
 
     public UploadImage() {
     }
 
-    public UploadImage(String fileName, Uri uri, int progress, boolean isUploading, long size) {
+    public UploadImage(String fileName, Uri uri, int progress, boolean isUploading, long sizeInBytes) {
         this.fileName = fileName;
         this.uri = uri;
         this.progress = progress;
         this.isUploading = isUploading;
-        this.size = size;
+        this.sizeInBytes = sizeInBytes;
     }
 
     public String getFileName() {
@@ -52,11 +52,11 @@ public class UploadImage {
         isUploading = uploading;
     }
 
-    public long getSize() {
-        return size;
+    public long getSizeInBytes() {
+        return sizeInBytes;
     }
 
-    public void setSize(long size) {
-        this.size = size;
+    public void setSizeInBytes(long sizeInBytes) {
+        this.sizeInBytes = sizeInBytes;
     }
 }

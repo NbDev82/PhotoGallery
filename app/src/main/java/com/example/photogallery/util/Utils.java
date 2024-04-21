@@ -11,8 +11,17 @@ import android.provider.OpenableColumns;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 public class Utils {
+
+    /**
+     * Retrieves the size of a file referenced by a given URI.
+     *
+     * @param context The context of the calling component.
+     * @param uri     The URI of the file whose size is to be retrieved.
+     * @return The size of the file in bytes, or 0 if unable to retrieve the size.
+     */
     public static long getFileSize(Context context, Uri uri) {
         ParcelFileDescriptor parcelFileDescriptor = null;
         FileInputStream inputStream = null;
@@ -63,5 +72,22 @@ public class Utils {
             fileName = uri.getLastPathSegment();
         }
         return fileName;
+    }
+
+    /**
+     * Formats a given file size into a human-readable string with appropriate units.
+     *
+     * @param size The file size in bytes.
+     * @return A formatted string representing the file size with appropriate units (e.g., KB, MB).
+     */
+    public static String formatFileSize(long size) {
+        if (size <= 0) return "0 B";
+
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+
+        return new DecimalFormat("#,##0.#")
+                .format(size / Math.pow(1024, digitGroups)) +
+                " " + units[digitGroups];
     }
 }
