@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.SizeReadyCallback;
@@ -58,6 +59,7 @@ public class PhotoAdapter extends ArrayAdapter<Photo> {
                 .load(img.getUri())
                 .error(R.drawable.ic_error)
                 .placeholder(R.drawable.ic_loading)
+                .thumbnail(0.02f)
                 .into(photoIV);
 
         photoTV.setText(img.getPhoto_name());
