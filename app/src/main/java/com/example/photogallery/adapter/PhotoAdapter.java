@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -51,6 +52,7 @@ public class PhotoAdapter extends ArrayAdapter<Photo> {
         Photo img = getItem(position);
         TextView photoTV = listitemView.findViewById(R.id.idTVName);
         ImageView photoIV = listitemView.findViewById(R.id.idIVImg);
+        Button deleteBtn = listitemView.findViewById(R.id.delete_btn);
 
         Glide.with(listitemView)
                 .load(img.getUri())
@@ -62,6 +64,10 @@ public class PhotoAdapter extends ArrayAdapter<Photo> {
 
         listitemView.setOnClickListener(v -> {
             listener.onImageClick(img);
+        });
+
+        deleteBtn.setOnClickListener(v -> {
+            listener.onDeleteClick(img); //
         });
 
         return listitemView;

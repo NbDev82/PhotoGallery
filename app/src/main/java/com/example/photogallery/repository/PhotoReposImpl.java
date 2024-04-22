@@ -60,6 +60,12 @@ public class PhotoReposImpl implements PhotoRepos {
     }
 
     @Override
+    public void deleteImage(Uri imageUri, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener) {
+        StorageReference imageRef = storageReference.child(imageUri.getLastPathSegment());
+        imageRef.delete().addOnSuccessListener(onSuccessListener).addOnFailureListener(onFailureListener);
+    }
+  
+    @Override
     public UploadTask uploadFile(UploadImage uploadImage) {
         String fileName = uploadImage.getFileName();
         StorageReference imageRef = storageReference.child(fileName);

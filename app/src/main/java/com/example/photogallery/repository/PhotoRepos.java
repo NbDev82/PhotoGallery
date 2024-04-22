@@ -18,5 +18,6 @@ public interface PhotoRepos {
                                  final OnSuccessListener<List<Photo>> onSuccessListener,
                                  final OnFailureListener onFailureListener);
 
+    void deleteImage(Uri imageUri, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener);
     UploadTask uploadFile(UploadImage uploadImage);
 }
