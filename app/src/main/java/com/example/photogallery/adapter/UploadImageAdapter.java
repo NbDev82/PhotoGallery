@@ -1,5 +1,6 @@
 package com.example.photogallery.adapter;
 
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,13 +55,23 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
         }
 
         public void bind(UploadImage uploadImage) {
-            binding.txvFileName.setText(uploadImage.getFileName());
+            String fileTypeStr = "Type: " + uploadImage.getFileType();
+            UploadImage.EStatus status = uploadImage.getStatus();
             long fileSize = uploadImage.getSizeInBytes();
-            String fileSizeStr = "Size: " + Utils.formatFileSize(fileSize);
+            boolean isPending = status == UploadImage.EStatus.PENDING;
+            String fileSizeStr = isPending
+                    ? "Size: " + Utils.formatFileSize(fileSize)
+                    : "Size: " + Utils.formatFileSize(uploadImage.getCurUploadSizeInBytes()) + "/" + Utils.formatFileSize(fileSize);
+
+            binding.txvFileName.setText(uploadImage.getFileName());
+            binding.txvFileType.setText(fileTypeStr);
             binding.txvFileSize.setText(fileSizeStr);
-            binding.progressBar.setVisibility(uploadImage.isUploading() ? View.VISIBLE : View.GONE);
+            binding.progressBar.setVisibility(isPending ? View.GONE : View.VISIBLE);
             binding.progressBar.setProgress(uploadImage.getProgress());
             binding.imgPreview.setImageURI(uploadImage.getUri());
+            binding.imgSuccess.setVisibility(status == UploadImage.EStatus.SUCCESS ? View.VISIBLE : View.GONE);
+            binding.imgFailure.setVisibility(status == UploadImage.EStatus.FAILURE ? View.VISIBLE : View.GONE);
+            binding.imgPause.setVisibility(status == UploadImage.EStatus.PAUSED ? View.VISIBLE : View.GONE);
         }
     }
 }

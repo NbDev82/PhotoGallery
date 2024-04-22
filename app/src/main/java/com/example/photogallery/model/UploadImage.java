@@ -4,20 +4,25 @@ import android.net.Uri;
 
 public class UploadImage {
     private String fileName;
+    private String fileType;
     private Uri uri;
     private int progress;
-    private boolean isUploading;
+    private EStatus status;
     private long sizeInBytes;
+    private long curUploadSizeInBytes;
 
     public UploadImage() {
     }
 
-    public UploadImage(String fileName, Uri uri, int progress, boolean isUploading, long sizeInBytes) {
+    public UploadImage(String fileName, String fileType, Uri uri, int progress,
+                       EStatus status, long sizeInBytes, long curUploadSizeInBytes) {
         this.fileName = fileName;
+        this.fileType = fileType;
         this.uri = uri;
         this.progress = progress;
-        this.isUploading = isUploading;
+        this.status = status;
         this.sizeInBytes = sizeInBytes;
+        this.curUploadSizeInBytes = curUploadSizeInBytes;
     }
 
     public String getFileName() {
@@ -26,6 +31,14 @@ public class UploadImage {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 
     public Uri getUri() {
@@ -44,12 +57,12 @@ public class UploadImage {
         this.progress = progress;
     }
 
-    public boolean isUploading() {
-        return isUploading;
+    public EStatus getStatus() {
+        return status;
     }
 
-    public void setUploading(boolean uploading) {
-        isUploading = uploading;
+    public void setStatus(EStatus status) {
+        this.status = status;
     }
 
     public long getSizeInBytes() {
@@ -58,5 +71,21 @@ public class UploadImage {
 
     public void setSizeInBytes(long sizeInBytes) {
         this.sizeInBytes = sizeInBytes;
+    }
+
+    public long getCurUploadSizeInBytes() {
+        return curUploadSizeInBytes;
+    }
+
+    public void setCurUploadSizeInBytes(long curUploadSizeInBytes) {
+        this.curUploadSizeInBytes = curUploadSizeInBytes;
+    }
+
+    public enum EStatus {
+        PENDING,
+        UPLOADING,
+        SUCCESS,
+        FAILURE,
+        PAUSED
     }
 }
