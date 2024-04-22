@@ -1,19 +1,27 @@
 package com.example.photogallery.repository;
 
 import android.net.Uri;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.example.photogallery.model.UploadImage;
 import com.example.photogallery.model.Photo;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnPausedListener;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PhotoReposImpl implements PhotoRepos {
 
-    private StorageReference storageReference;
+    private final StorageReference storageReference;
 
     public PhotoReposImpl() {
         storageReference = FirebaseStorage.getInstance().getReference();
@@ -49,5 +57,12 @@ public class PhotoReposImpl implements PhotoRepos {
                 onSuccessListener.onSuccess(photos);
             }
         }
+    }
+
+    @Override
+    public UploadTask uploadFile(UploadImage uploadImage) {
+        String fileName = uploadImage.getFileName();
+        StorageReference imageRef = storageReference.child(fileName);
+        return imageRef.putFile(uploadImage.getUri());
     }
 }
