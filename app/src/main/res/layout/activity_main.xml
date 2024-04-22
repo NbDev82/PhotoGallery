@@ -8,9 +8,11 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager_home"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_above="@id/cv_nav_bar"/>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cv_nav_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:outlineSpotShadowColor="@color/black"
