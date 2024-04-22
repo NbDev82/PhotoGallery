@@ -15,4 +15,6 @@ public interface PhotoRepos {
     void convertUriListToBitmaps(List<Uri> imageUris,
                                  final OnSuccessListener<List<Photo>> onSuccessListener,
                                  final OnFailureListener onFailureListener);
+
+    void deleteImage(Uri imageUri, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener);
 }

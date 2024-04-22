@@ -79,4 +79,17 @@ public class GalleryFragment extends Fragment implements PhotoListener {
         intent.setData(photo.getUri());
         startActivity(intent);
     }
+
+    @Override
+    public void onDeleteClick(Photo photo) {
+        photoRepos.deleteImage(photo.getUri(),
+                unused -> {
+                    mPhotos.remove(photo);
+                    mPhotoAdapter.notifyDataSetChanged();
+                },
+                e -> {
+                    Log.e("Delete Error", "Failed to delete image: " + e.getMessage());
+                }
+        );
+    }
 }
