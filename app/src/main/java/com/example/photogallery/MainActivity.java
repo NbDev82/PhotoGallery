@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         PhotoRepos photoRepos = new PhotoReposImpl();
 
         galleryFragment = new GalleryFragment(photoRepos);
-        uploadFragment = new UploadFragment();
+        uploadFragment = new UploadFragment(galleryFragment);
 
         ArrayList<Fragment> fragments = new ArrayList<>();
         fragments.add(galleryFragment);

@@ -52,14 +52,31 @@
             android:textSize="@dimen/_10ssp"
             tools:text="Size: "/>
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
+        <LinearLayout
+            android:id="@+id/ll_upload_progress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_8sdp"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:progress="30"
-            android:visibility="visible" />
+            android:orientation="vertical">
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:progress="30"
+                android:visibility="visible"/>
+
+            <TextView
+                android:id="@+id/txv_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/_10ssp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_2sdp"
+                tools:text="30%"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

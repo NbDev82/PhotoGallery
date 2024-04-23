@@ -55,23 +55,36 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
         }
 
         public void bind(UploadImage uploadImage) {
+            setupBasicInfo(uploadImage);
+            setupProgressBar(uploadImage.isPending(), uploadImage.getProgress());
+            setupLabel(uploadImage);
+        }
+
+        private void setupBasicInfo(UploadImage uploadImage) {
             String fileTypeStr = "Type: " + uploadImage.getFileType();
-            UploadImage.EStatus status = uploadImage.getStatus();
             long fileSize = uploadImage.getSizeInBytes();
-            boolean isPending = status == UploadImage.EStatus.PENDING;
-            String fileSizeStr = isPending
+            String fileSizeStr = uploadImage.isPending()
                     ? "Size: " + Utils.formatFileSize(fileSize)
                     : "Size: " + Utils.formatFileSize(uploadImage.getCurUploadSizeInBytes()) + "/" + Utils.formatFileSize(fileSize);
 
             binding.txvFileName.setText(uploadImage.getFileName());
             binding.txvFileType.setText(fileTypeStr);
             binding.txvFileSize.setText(fileSizeStr);
-            binding.progressBar.setVisibility(isPending ? View.GONE : View.VISIBLE);
-            binding.progressBar.setProgress(uploadImage.getProgress());
             binding.imgPreview.setImageURI(uploadImage.getUri());
-            binding.imgSuccess.setVisibility(status == UploadImage.EStatus.SUCCESS ? View.VISIBLE : View.GONE);
-            binding.imgFailure.setVisibility(status == UploadImage.EStatus.FAILURE ? View.VISIBLE : View.GONE);
-            binding.imgPause.setVisibility(status == UploadImage.EStatus.PAUSED ? View.VISIBLE : View.GONE);
+        }
+
+        private void setupProgressBar(boolean isPending, int progress) {
+            String progressStr = progress + "%";
+
+            binding.llUploadProgress.setVisibility(isPending ? View.GONE : View.VISIBLE);
+            binding.progressBar.setProgress(progress, true);
+            binding.txvProgress.setText(progressStr);
+        }
+
+        private void setupLabel(UploadImage uploadImage) {
+            binding.imgSuccess.setVisibility(uploadImage.isSuccess() ? View.VISIBLE : View.GONE);
+            binding.imgFailure.setVisibility(uploadImage.isFailure() ? View.VISIBLE : View.GONE);
+            binding.imgPause.setVisibility(uploadImage.isPaused() ? View.VISIBLE : View.GONE);
         }
     }
 }
