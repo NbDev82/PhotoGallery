@@ -25,6 +25,26 @@ public class UploadImage {
         this.curUploadSizeInBytes = curUploadSizeInBytes;
     }
 
+    public boolean isPending() {
+        return status == UploadImage.EStatus.PENDING;
+    }
+
+    public boolean isUploading() {
+        return status == UploadImage.EStatus.UPLOADING;
+    }
+
+    public boolean isSuccess() {
+        return status == EStatus.SUCCESS;
+    }
+
+    public boolean isFailure() {
+        return status == EStatus.FAILURE;
+    }
+
+    public boolean isPaused() {
+        return status == EStatus.PAUSED;
+    }
+
     public String getFileName() {
         return fileName;
     }

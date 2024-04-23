@@ -22,13 +22,16 @@ import android.widget.Toast;
 
 import com.example.photogallery.adapter.UploadImageAdapter;
 import com.example.photogallery.databinding.FragmentUploadBinding;
+import com.example.photogallery.listener.AddPhotoListener;
+import com.example.photogallery.model.Photo;
 import com.example.photogallery.model.UploadImage;
 import com.example.photogallery.repository.PhotoRepos;
 import com.example.photogallery.repository.PhotoReposImpl;
 import com.example.photogallery.util.AppExecutors;
 import com.example.photogallery.util.Utils;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.UploadTask;
@@ -45,6 +48,11 @@ public class UploadFragment extends Fragment {
     private UploadImageAdapter uploadImageAdapter;
     private PhotoRepos photoRepos;
     private List<UploadTask> uploadTasks;
+    private AddPhotoListener addPhotoListener;
+
+    public UploadFragment(AddPhotoListener addPhotoListener) {
+        this.addPhotoListener = addPhotoListener;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,6 +78,8 @@ public class UploadFragment extends Fragment {
 
     private void setupListeners() {
         binding.btnSelectImg.setOnClickListener(v -> {
+            toggleSelectImageBtnState(true);
+
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -86,6 +96,7 @@ public class UploadFragment extends Fragment {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() != RESULT_OK) {
+                    toggleSelectImageBtnState(false);
                     return;
                 }
 
@@ -95,6 +106,7 @@ public class UploadFragment extends Fragment {
                 if (data == null) {
                     Toast.makeText(requireActivity(), "You haven't picked Image", Toast.LENGTH_LONG)
                             .show();
+                    toggleSelectImageBtnState(false);
                     return;
                 }
 
@@ -102,6 +114,7 @@ public class UploadFragment extends Fragment {
                     Uri uri = data.getData();
                     addUriToSelectedImages(uri);
                     binding.llEmpty.setVisibility(View.GONE);
+                    toggleSelectImageBtnState(false);
                     Log.i(TAG, "Selected images: " + selectedImages);
                     return;
                 }
@@ -113,6 +126,7 @@ public class UploadFragment extends Fragment {
                     addUriToSelectedImages(uri);
                 }
                 binding.llEmpty.setVisibility(View.GONE);
+                toggleSelectImageBtnState(false);
                 Log.i(TAG, "Selected images: " + selectedImages);
             });
 
@@ -139,8 +153,27 @@ public class UploadFragment extends Fragment {
         selectedImages = new ArrayList<>();
         uploadTasks = new ArrayList<>();
 
-        binding.btnUploadImg.setVisibility(View.VISIBLE);
-        binding.pbUploadImgBtn.setVisibility(View.GONE);
+        toggleUploadUIState(false);
+    }
+
+    private void toggleUploadUIState(boolean inProgress) {
+        if (inProgress) {
+            binding.btnUploadImg.setVisibility(View.INVISIBLE);
+            binding.pbUploadImgBtn.setVisibility(View.VISIBLE);
+        } else {
+            binding.btnUploadImg.setVisibility(View.VISIBLE);
+            binding.pbUploadImgBtn.setVisibility(View.GONE);
+        }
+    }
+
+    private void toggleSelectImageBtnState(boolean inProgress) {
+        if (inProgress) {
+            binding.btnSelectImg.setVisibility(View.INVISIBLE);
+            binding.pbSelectBtn.setVisibility(View.VISIBLE);
+        } else {
+            binding.btnSelectImg.setVisibility(View.VISIBLE);
+            binding.pbSelectBtn.setVisibility(View.GONE);
+        }
     }
 
     private void handleUploadImg() {
@@ -150,63 +183,84 @@ public class UploadFragment extends Fragment {
             return;
         }
 
-        binding.btnUploadImg.setVisibility(View.INVISIBLE);
-        binding.pbUploadImgBtn.setVisibility(View.VISIBLE);
-        uploadSelectedImages();
+        toggleUploadUIState(true);
+
+        AppExecutors.getIns().networkIO().execute(() -> {
+            uploadSelectedImages();
+        });
     }
 
     private void uploadSelectedImages() {
-        AppExecutors.getIns().networkIO().execute(() -> {
-            for (int i = 0; i < selectedImages.size(); i++) {
-                UploadImage selectedImage = selectedImages.get(i);
-                selectedImage.setStatus(UploadImage.EStatus.UPLOADING);
-                final int tempI = i;
-                UploadTask uploadTask = photoRepos.uploadFile(selectedImage);
-                uploadTask
-                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                long currentUploadSize = taskSnapshot.getBytesTransferred();
-                                int progress = (int) ((100.0 * currentUploadSize) / taskSnapshot.getTotalByteCount());
-                                Log.i(TAG, "Upload is " + progress + "% done");
+        for (int i = 0; i < selectedImages.size(); i++) {
+            UploadImage selectedImage = selectedImages.get(i);
+            selectedImage.setStatus(UploadImage.EStatus.UPLOADING);
+            final int tempI = i;
+            UploadTask uploadTask = photoRepos.uploadFile(selectedImage);
+            uploadTask
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            long currentUploadSize = taskSnapshot.getBytesTransferred();
+                            int progress = (int) ((100.0 * currentUploadSize) / taskSnapshot.getTotalByteCount());
+                            Log.i(TAG, "Upload is " + progress + "% done");
 
-                                selectedImage.setCurUploadSizeInBytes(currentUploadSize);
-                                selectedImage.setProgress(progress);
-                                requireActivity().runOnUiThread(() -> {
-                                    uploadImageAdapter.notifyItemChanged(tempI);
-                                });
-                            }
-                        })
-                        .addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                                Log.i(TAG, "Upload is paused");
-
-                                selectedImage.setStatus(UploadImage.EStatus.PAUSED);
-                                requireActivity().runOnUiThread(() -> {
-                                    uploadImageAdapter.notifyItemChanged(tempI);
-                                });
-                            }
-                        })
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                selectedImage.setStatus(UploadImage.EStatus.SUCCESS);
-                                requireActivity().runOnUiThread(() -> {
-                                    uploadImageAdapter.notifyItemChanged(tempI);
-                                });
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            selectedImage.setStatus(UploadImage.EStatus.FAILURE);
+                            selectedImage.setCurUploadSizeInBytes(currentUploadSize);
+                            selectedImage.setProgress(progress);
                             requireActivity().runOnUiThread(() -> {
                                 uploadImageAdapter.notifyItemChanged(tempI);
                             });
-                        });
+                        }
+                    })
+                    .addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.i(TAG, "Upload is paused");
 
-                uploadTasks.add(uploadTask);
-            }
-        });
+                            selectedImage.setStatus(UploadImage.EStatus.PAUSED);
+                            requireActivity().runOnUiThread(() -> {
+                                uploadImageAdapter.notifyItemChanged(tempI);
+                            });
+                        }
+                    })
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                            selectedImage.setStatus(UploadImage.EStatus.SUCCESS);
+                            requireActivity().runOnUiThread(() -> {
+                                uploadImageAdapter.notifyItemChanged(tempI);
+                                if (addPhotoListener != null) {
+                                    Photo photo = new Photo(selectedImage.getUri());
+                                    addPhotoListener.add(photo);
+                                }
+                            });
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        selectedImage.setStatus(UploadImage.EStatus.FAILURE);
+                        requireActivity().runOnUiThread(() -> {
+                            uploadImageAdapter.notifyItemChanged(tempI);
+                        });
+                    });
+
+            uploadTasks.add(uploadTask);
+        }
+
+        Task<Void> allTasks = Tasks.whenAll(uploadTasks);
+        allTasks
+                .addOnSuccessListener(unused -> {
+                    requireActivity().runOnUiThread(() -> {
+                        toggleUploadUIState(false);
+                    });
+
+                    Toast.makeText(requireActivity(), "Load successfully", Toast.LENGTH_SHORT)
+                            .show();
+                })
+                .addOnFailureListener(e -> {
+                    requireActivity().runOnUiThread(() -> {
+                        toggleUploadUIState(false);
+                    });
+                    Log.e(TAG, String.valueOf(e));
+                });
     }
 }

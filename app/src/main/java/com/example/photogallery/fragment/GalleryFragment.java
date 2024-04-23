@@ -1,7 +1,6 @@
 package com.example.photogallery.fragment;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -14,14 +13,14 @@ import android.view.ViewGroup;
 import com.example.photogallery.PhotoActivity;
 import com.example.photogallery.adapter.PhotoAdapter;
 import com.example.photogallery.databinding.FragmentGalleryBinding;
+import com.example.photogallery.listener.AddPhotoListener;
 import com.example.photogallery.listener.PhotoListener;
 import com.example.photogallery.model.Photo;
 import com.example.photogallery.repository.PhotoRepos;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
-public class GalleryFragment extends Fragment implements PhotoListener {
+public class GalleryFragment extends Fragment implements PhotoListener, AddPhotoListener {
     private PhotoAdapter mPhotoAdapter;
     private ArrayList<Photo> mPhotos;
 
@@ -78,6 +77,11 @@ public class GalleryFragment extends Fragment implements PhotoListener {
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.setData(photo.getUri());
         startActivity(intent);
+    }
+
+    @Override
+    public void add(Photo photo) {
+        mPhotoAdapter.addImage(photo);
     }
 
     @Override
