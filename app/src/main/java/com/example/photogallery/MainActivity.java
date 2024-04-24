@@ -1,13 +1,13 @@
 package com.example.photogallery;
 
 
+import android.os.Bundle;
+import android.view.MenuItem;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
-
-import android.os.Bundle;
-import android.view.MenuItem;
 
 import com.example.photogallery.databinding.ActivityMainBinding;
 import com.example.photogallery.fragment.GalleryFragment;
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         PhotoRepos photoRepos = new PhotoReposImpl();
 
         galleryFragment = new GalleryFragment(photoRepos);
-        uploadFragment = new UploadFragment(galleryFragment);
+        uploadFragment = new UploadFragment(photoRepos, galleryFragment);
 
         ArrayList<Fragment> fragments = new ArrayList<>();
         fragments.add(galleryFragment);

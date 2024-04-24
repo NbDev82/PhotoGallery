@@ -1,14 +1,14 @@
 package com.example.photogallery.fragment;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
 
 import com.example.photogallery.PhotoActivity;
 import com.example.photogallery.adapter.PhotoAdapter;
@@ -59,15 +59,10 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
         if(mPhotoAdapter.isEmpty()) {
             photoRepos.fetchAllImageUris(
                     imageUris -> {
-                        photoRepos.convertUriListToBitmaps(imageUris,
-                                downloadedImages -> {
-                                    for (Photo photo : downloadedImages) {
-                                        mPhotoAdapter.addImage(new Photo(photo.getUri()));
-                                    }
-                                },
-                                e -> {
-                                    Log.e("Download Error", "Failed to download images: " + e.getMessage());
-                                });
+                        for (Uri uri : imageUris) {
+                            Photo photo = new Photo(uri);
+                            mPhotoAdapter.addImage(photo);
+                        }
                     },
                     e -> {
                         Log.e("Fetch Error", "Failed to fetch image URIs: " + e.getMessage());

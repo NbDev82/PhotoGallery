@@ -6,18 +6,17 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import android.util.Log;
-import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.photogallery.adapter.UploadImageAdapter;
 import com.example.photogallery.customcontrol.CustomToast;
@@ -27,7 +26,6 @@ import com.example.photogallery.listener.UploadImageListener;
 import com.example.photogallery.model.Photo;
 import com.example.photogallery.model.UploadImage;
 import com.example.photogallery.repository.PhotoRepos;
-import com.example.photogallery.repository.PhotoReposImpl;
 import com.example.photogallery.util.AppExecutors;
 import com.example.photogallery.util.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -53,7 +51,8 @@ public class UploadFragment extends Fragment implements UploadImageListener {
     private List<UploadTask> uploadTasks;
     private AddPhotoListener addPhotoListener;
 
-    public UploadFragment(AddPhotoListener addPhotoListener) {
+    public UploadFragment(PhotoRepos photoRepos, AddPhotoListener addPhotoListener) {
+        this.photoRepos = photoRepos;
         this.addPhotoListener = addPhotoListener;
     }
 
@@ -75,7 +74,6 @@ public class UploadFragment extends Fragment implements UploadImageListener {
         selectedImages = new ArrayList<>();
         uploadImageAdapter = new UploadImageAdapter(new ArrayList<>(), this);
         binding.rcvImgPreview.setAdapter(uploadImageAdapter);
-        photoRepos = new PhotoReposImpl();
         uploadTasks = new ArrayList<>();
 
         binding.llEmpty.setVisibility(View.VISIBLE);
