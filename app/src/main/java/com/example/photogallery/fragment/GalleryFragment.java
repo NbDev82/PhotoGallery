@@ -20,6 +20,8 @@ import com.example.photogallery.repository.PhotoRepos;
 
 import java.util.ArrayList;
 
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
 public class GalleryFragment extends Fragment implements PhotoListener, AddPhotoListener {
     private PhotoAdapter mPhotoAdapter;
     private ArrayList<Photo> mPhotos;
@@ -40,6 +42,8 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
         mPhotos = new ArrayList<>();
         mPhotoAdapter = new PhotoAdapter(getContext(), mPhotos, this);
         binding.gridView.setAdapter(mPhotoAdapter);
+
+        OverScrollDecoratorHelper.setUpOverScroll(binding.gridView);
 
         return binding.getRoot();
     }
@@ -81,6 +85,9 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
 
     @Override
     public void add(Photo photo) {
+        if (mPhotoAdapter == null) {
+            mPhotoAdapter = new PhotoAdapter(requireActivity(), new ArrayList<>(), this);
+        }
         mPhotoAdapter.addImage(photo);
     }
 

@@ -14,6 +14,7 @@ import com.example.photogallery.fragment.GalleryFragment;
 import com.example.photogallery.fragment.UploadFragment;
 import com.example.photogallery.repository.PhotoRepos;
 import com.example.photogallery.repository.PhotoReposImpl;
+import com.example.photogallery.util.Utils;
 import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setStatusBarGradiant(this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        int firstFragmentPosition = 2;
+        int firstFragmentPosition = 0;
         binding.viewPagerHome.setCurrentItem(firstFragmentPosition, false);
     }
 }

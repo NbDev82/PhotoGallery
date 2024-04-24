@@ -1,6 +1,5 @@
 package com.example.photogallery.adapter;
 
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.photogallery.databinding.ItemUploadImageBinding;
+import com.example.photogallery.listener.UploadImageListener;
 import com.example.photogallery.model.UploadImage;
 import com.example.photogallery.util.Utils;
 
@@ -17,9 +17,11 @@ import java.util.List;
 public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.UploadImageViewHolder> {
 
     private List<UploadImage> uploadImages;
+    private UploadImageListener uploadImageListener;
 
-    public UploadImageAdapter(List<UploadImage> uploadImages) {
+    public UploadImageAdapter(List<UploadImage> uploadImages, UploadImageListener uploadImageListener) {
         this.uploadImages = uploadImages;
+        this.uploadImageListener = uploadImageListener;
     }
 
     public void setItems(List<UploadImage> uploadImages) {
@@ -37,7 +39,7 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
     @Override
     public void onBindViewHolder(@NonNull UploadImageViewHolder holder, int position) {
         UploadImage uploadImage = uploadImages.get(position);
-        holder.bind(uploadImage);
+        holder.bind(position, uploadImage);
     }
 
     @Override
@@ -45,7 +47,7 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
         return uploadImages.size();
     }
 
-    public static class UploadImageViewHolder extends RecyclerView.ViewHolder {
+    public class UploadImageViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemUploadImageBinding binding;
 
@@ -54,10 +56,10 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
             this.binding = binding;
         }
 
-        public void bind(UploadImage uploadImage) {
+        public void bind(int position, UploadImage uploadImage) {
             setupBasicInfo(uploadImage);
             setupProgressBar(uploadImage.isPending(), uploadImage.getProgress());
-            setupLabel(uploadImage);
+            setupOperations(position, uploadImage);
         }
 
         private void setupBasicInfo(UploadImage uploadImage) {
@@ -81,10 +83,23 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
             binding.txvProgress.setText(progressStr);
         }
 
-        private void setupLabel(UploadImage uploadImage) {
+        private void setupOperations(int position, UploadImage uploadImage) {
             binding.imgSuccess.setVisibility(uploadImage.isSuccess() ? View.VISIBLE : View.GONE);
             binding.imgFailure.setVisibility(uploadImage.isFailure() ? View.VISIBLE : View.GONE);
-            binding.imgPause.setVisibility(uploadImage.isPaused() ? View.VISIBLE : View.GONE);
+            binding.imgResume.setVisibility(uploadImage.isPaused() ? View.VISIBLE : View.GONE);
+            binding.imgPause.setVisibility(uploadImage.isUploading() ? View.VISIBLE : View.GONE);
+
+            if (uploadImageListener == null) {
+                return;
+            }
+
+            binding.imgResume.setOnClickListener(v -> {
+                uploadImageListener.resume(position);
+            });
+
+            binding.imgPause.setOnClickListener(v -> {
+                uploadImageListener.pause(position);
+            });
         }
     }
 }

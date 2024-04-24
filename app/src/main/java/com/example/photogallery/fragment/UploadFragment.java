@@ -18,11 +18,12 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.photogallery.adapter.UploadImageAdapter;
+import com.example.photogallery.customcontrol.CustomToast;
 import com.example.photogallery.databinding.FragmentUploadBinding;
 import com.example.photogallery.listener.AddPhotoListener;
+import com.example.photogallery.listener.UploadImageListener;
 import com.example.photogallery.model.Photo;
 import com.example.photogallery.model.UploadImage;
 import com.example.photogallery.repository.PhotoRepos;
@@ -39,7 +40,9 @@ import com.google.firebase.storage.UploadTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UploadFragment extends Fragment {
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
+public class UploadFragment extends Fragment implements UploadImageListener {
 
     private static final String TAG = UploadImage.class.getSimpleName();
 
@@ -58,6 +61,10 @@ public class UploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentUploadBinding.inflate(inflater, container, false);
+
+        OverScrollDecoratorHelper.setUpOverScroll(binding.rcvImgPreview,
+                OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
         return binding.getRoot();
     }
 
@@ -66,7 +73,7 @@ public class UploadFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         selectedImages = new ArrayList<>();
-        uploadImageAdapter = new UploadImageAdapter(new ArrayList<>());
+        uploadImageAdapter = new UploadImageAdapter(new ArrayList<>(), this);
         binding.rcvImgPreview.setAdapter(uploadImageAdapter);
         photoRepos = new PhotoReposImpl();
         uploadTasks = new ArrayList<>();
@@ -100,12 +107,12 @@ public class UploadFragment extends Fragment {
                     return;
                 }
 
+                cancelPreviousUploadTask();
                 clearOldSelectedImages();
 
                 Intent data = result.getData();
                 if (data == null) {
-                    Toast.makeText(requireActivity(), "You haven't picked Image", Toast.LENGTH_LONG)
-                            .show();
+                    CustomToast.showErrorToast(requireActivity(), "You haven't picked Image");
                     toggleSelectImageBtnState(false);
                     return;
                 }
@@ -143,6 +150,14 @@ public class UploadFragment extends Fragment {
         uploadImageAdapter.setItems(selectedImages);
     }
 
+    private void cancelPreviousUploadTask() {
+        uploadTasks.forEach(uploadTask -> {
+            if (uploadTask.isInProgress()) {
+                uploadTask.cancel();
+            }
+        });
+    }
+
     private void clearOldSelectedImages() {
         uploadTasks.forEach(task -> {
             if (task.isInProgress()) {
@@ -178,8 +193,7 @@ public class UploadFragment extends Fragment {
 
     private void handleUploadImg() {
         if (selectedImages.isEmpty()) {
-            Toast.makeText(requireActivity(), "Images is not empty", Toast.LENGTH_SHORT)
-                    .show();
+            CustomToast.showErrorToast(requireActivity(), "Images is not empty");
             return;
         }
 
@@ -253,8 +267,7 @@ public class UploadFragment extends Fragment {
                         toggleUploadUIState(false);
                     });
 
-                    Toast.makeText(requireActivity(), "Load successfully", Toast.LENGTH_SHORT)
-                            .show();
+                    CustomToast.showSuccessToast(requireActivity(), "Load successfully");
                 })
                 .addOnFailureListener(e -> {
                     requireActivity().runOnUiThread(() -> {
@@ -262,5 +275,46 @@ public class UploadFragment extends Fragment {
                     });
                     Log.e(TAG, String.valueOf(e));
                 });
+    }
+
+    @Override
+    public void pause(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.pause();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.PAUSED);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
+    @Override
+    public void resume(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.resume();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.UPLOADING);
+            uploadImageAdapter.notifyItemChanged(position);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
+    @Override
+    public void cancel(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.cancel();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.FAILURE);
+            uploadImageAdapter.notifyItemChanged(position);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
     }
 }
