@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.photogallery.PhotoActivity;
+import com.example.photogallery.ImageActivity;
 import com.example.photogallery.adapter.PhotoAdapter;
 import com.example.photogallery.databinding.FragmentGalleryBinding;
 import com.example.photogallery.listener.AddPhotoListener;
@@ -61,7 +61,7 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
 
     @Override
     public void onImageClick(Photo photo) {
-        Intent intent = new Intent(getContext(), PhotoActivity.class);
+        Intent intent = new Intent(getContext(), ImageActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.setData(photo.getUri());
         startActivity(intent);
