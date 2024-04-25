@@ -273,11 +273,8 @@ public class UploadFragment extends Fragment implements UploadImageListener {
                             uploadImageAdapter.notifyItemChanged(tempI);
                             if (addPhotoListener != null) {
                                 Uri uri = selectedImage.getUri();
-                                Photo.EStatus status = Photo.EStatus.SUCCESS;
                                 long sizeInBytes = selectedImage.getSizeInBytes();
-                                long curUploadSizeInBytes = selectedImage.getCurUploadSizeInBytes();
-                                Photo photo = new Photo(uri, status,
-                                        sizeInBytes, curUploadSizeInBytes);
+                                Photo photo = new Photo(uri, sizeInBytes);
                                 addPhotoListener.add(photo);
                             }
                         });

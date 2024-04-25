@@ -44,9 +44,11 @@ public class PhotoAdapter extends ArrayAdapter<Photo> {
         binding = CardItemBinding.inflate(layoutInflater, parent, false);
 
         Photo photo = getItem(position);
-        setupProgressBar(photo);
+        long fileSize = photo.getSizeInBytes();
+        String fileSizeStr = Utils.formatFileSize(fileSize);
 
         binding.idTVName.setText(photo.getPhotoName());
+        binding.idTVSizeFile.setText(fileSizeStr);
 //        binding.idIVImg.setVisibility(photo.getStatus() == Photo.EStatus.SUCCESS ? View.VISIBLE : View.GONE);
         binding.cvLayout.setOnClickListener(v -> {
             listener.onImageClick(photo);
@@ -74,19 +76,6 @@ public class PhotoAdapter extends ArrayAdapter<Photo> {
                 .into(binding.idIVImg);
 
         return binding.getRoot();
-    }
-
-    private void setupProgressBar(Photo photo) {
-        long curDownloadSizeInBytes = photo.getCurDownloadSizeInBytes();
-        long fileSize = photo.getSizeInBytes();
-        String curDownloadSizeStr = Utils.formatFileSize(curDownloadSizeInBytes);
-        String fileSizeStr = "/" + Utils.formatFileSize(fileSize);
-
-//        binding.rlDownloadProgress.setVisibility(photo.getStatus() == Photo.EStatus.DOWNLOADING ? View.VISIBLE : View.GONE);
-        binding.rlDownloadProgress.setVisibility(View.GONE);
-        binding.txvDownloadedSize.setText(curDownloadSizeStr);
-        binding.cpiDownload.setProgress(photo.getDownloadProgress());
-        binding.txvFileSize.setText(fileSizeStr);
     }
 }
 

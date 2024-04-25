@@ -18,9 +18,13 @@ import com.example.photogallery.listener.AddPhotoListener;
 import com.example.photogallery.listener.PhotoListener;
 import com.example.photogallery.model.Photo;
 import com.example.photogallery.repository.PhotoRepos;
+import com.example.photogallery.repository.PhotoReposImpl;
 import com.example.photogallery.util.Utils;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
@@ -93,12 +97,34 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
             return;
         }
 
-        photoRepos.fetchAllImageUris(uris -> {
-            for (Uri uri : uris) {
-                Pair<String, String> nameAndType = Utils.getFileName(requireActivity(), uri);
-                long fileSize = Utils.getFileSize(requireActivity(), uri);
-                Photo photo = new Photo(uri, Photo.EStatus.DOWNLOADING, fileSize, 0);
-                mPhotoAdapter.addImage(photo);
+        photoRepos.fetchAllImages(storageReferences -> {
+            for (StorageReference item : storageReferences) {
+                Photo photo = new Photo();
+                add(photo);
+
+                item
+                        .getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            photo.setUri(uri);
+                            requireActivity().runOnUiThread(() -> {
+                                mPhotoAdapter.notifyDataSetChanged();
+                            });
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, String.valueOf(e));
+                        });
+
+                item.getMetadata()
+                        .addOnSuccessListener(storageMetadata -> {
+                            long sizeInBytes = storageMetadata.getSizeBytes();
+                            photo.setSizeInBytes(sizeInBytes);
+                            requireActivity().runOnUiThread(() -> {
+                                mPhotoAdapter.notifyDataSetChanged();
+                            });
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, String.valueOf(e));
+                        });
             }
         }, e -> {
             Log.e(TAG, String.valueOf(e));
