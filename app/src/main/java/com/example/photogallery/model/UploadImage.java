@@ -9,18 +9,20 @@ public class UploadImage {
     private EStatus status;
     private long sizeInBytes;
     private long curUploadSizeInBytes;
+    private long uploadDuration;
 
     public UploadImage() {
     }
 
     public UploadImage(String fileName, String fileType, Uri uri, EStatus status,
-                       long sizeInBytes, long curUploadSizeInBytes) {
+                       long sizeInBytes, long curUploadSizeInBytes, long uploadDuration) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.uri = uri;
         this.status = status;
         this.sizeInBytes = sizeInBytes;
         this.curUploadSizeInBytes = curUploadSizeInBytes;
+        this.uploadDuration = uploadDuration;
     }
 
     public boolean isPending() {
@@ -93,6 +95,14 @@ public class UploadImage {
 
     public void setCurUploadSizeInBytes(long curUploadSizeInBytes) {
         this.curUploadSizeInBytes = curUploadSizeInBytes;
+    }
+
+    public long getUploadDuration() {
+        return uploadDuration;
+    }
+
+    public void setUploadDuration(long uploadDuration) {
+        this.uploadDuration = uploadDuration;
     }
 
     public enum EStatus {

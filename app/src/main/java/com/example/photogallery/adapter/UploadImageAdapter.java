@@ -68,10 +68,12 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
             String fileSizeStr = uploadImage.isPending()
                     ? "Size: " + Utils.formatFileSize(fileSize)
                     : "Size: " + Utils.formatFileSize(uploadImage.getCurUploadSizeInBytes()) + "/" + Utils.formatFileSize(fileSize);
+            String uploadTimeStr = "Upload duration: " + Utils.formatDuration(uploadImage.getUploadDuration());
 
             binding.txvFileName.setText(uploadImage.getFileName());
             binding.txvFileType.setText(fileTypeStr);
             binding.txvFileSize.setText(fileSizeStr);
+            binding.txvUploadDuration.setText(uploadTimeStr);
             binding.imgPreview.setImageURI(uploadImage.getUri());
         }
 
