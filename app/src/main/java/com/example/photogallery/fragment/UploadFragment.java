@@ -81,6 +81,47 @@ public class UploadFragment extends Fragment implements UploadImageListener {
         setupListeners();
     }
 
+    @Override
+    public void pause(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.pause();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.PAUSED);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
+    @Override
+    public void resume(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.resume();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.UPLOADING);
+            uploadImageAdapter.notifyItemChanged(position);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
+    @Override
+    public void cancel(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.cancel();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.FAILURE);
+            uploadImageAdapter.notifyItemChanged(position);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
     private void setupListeners() {
         binding.btnSelectImg.setOnClickListener(v -> {
             toggleSelectImageBtnState(true);
@@ -139,7 +180,7 @@ public class UploadFragment extends Fragment implements UploadImageListener {
         Pair<String, String> nameAndType = Utils.getFileName(requireContext(), uri);
         long sizeInBytes = Utils.getFileSize(requireContext(), uri);
         UploadImage uploadImage = new UploadImage(nameAndType.first, nameAndType.second, uri,
-                        UploadImage.EStatus.PENDING, sizeInBytes, 0);
+                UploadImage.EStatus.PENDING, sizeInBytes, 0);
         addImageToSelectedImages(uploadImage);
     }
 
@@ -266,46 +307,5 @@ public class UploadFragment extends Fragment implements UploadImageListener {
                     });
                     Log.e(TAG, String.valueOf(e));
                 });
-    }
-
-    @Override
-    public void pause(int position) {
-        try {
-            UploadTask uploadTask = uploadTasks.get(position);
-            uploadTask.pause();
-
-            UploadImage uploadImage = selectedImages.get(position);
-            uploadImage.setStatus(UploadImage.EStatus.PAUSED);
-        } catch (Exception e) {
-            Log.e(TAG, String.valueOf(e));
-        }
-    }
-
-    @Override
-    public void resume(int position) {
-        try {
-            UploadTask uploadTask = uploadTasks.get(position);
-            uploadTask.resume();
-
-            UploadImage uploadImage = selectedImages.get(position);
-            uploadImage.setStatus(UploadImage.EStatus.UPLOADING);
-            uploadImageAdapter.notifyItemChanged(position);
-        } catch (Exception e) {
-            Log.e(TAG, String.valueOf(e));
-        }
-    }
-
-    @Override
-    public void cancel(int position) {
-        try {
-            UploadTask uploadTask = uploadTasks.get(position);
-            uploadTask.cancel();
-
-            UploadImage uploadImage = selectedImages.get(position);
-            uploadImage.setStatus(UploadImage.EStatus.FAILURE);
-            uploadImageAdapter.notifyItemChanged(position);
-        } catch (Exception e) {
-            Log.e(TAG, String.valueOf(e));
-        }
     }
 }
