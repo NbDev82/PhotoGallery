@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.photogallery.ImageActivity;
 import com.example.photogallery.adapter.PhotoAdapter;
+import com.example.photogallery.customcontrol.CustomToast;
 import com.example.photogallery.databinding.FragmentGalleryBinding;
 import com.example.photogallery.listener.AddPhotoListener;
 import com.example.photogallery.listener.PhotoListener;
@@ -85,9 +86,11 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
                 unused -> {
                     mPhotos.remove(photo);
                     mPhotoAdapter.notifyDataSetChanged();
+                    CustomToast.showSuccessToast(requireActivity(), "Deleted successfully!");
                 },
                 e -> {
                     Log.e("Delete Error", "Failed to delete image: " + e.getMessage());
+                    CustomToast.showErrorToast(requireActivity(), "Failed to delete image!");
                 }
         );
     }
