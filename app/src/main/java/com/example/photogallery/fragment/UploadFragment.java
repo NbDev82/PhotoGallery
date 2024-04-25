@@ -180,7 +180,7 @@ public class UploadFragment extends Fragment implements UploadImageListener {
         Pair<String, String> nameAndType = Utils.getFileName(requireContext(), uri);
         long sizeInBytes = Utils.getFileSize(requireContext(), uri);
         UploadImage uploadImage = new UploadImage(nameAndType.first, nameAndType.second, uri,
-                UploadImage.EStatus.PENDING, sizeInBytes, 0);
+                UploadImage.EStatus.PENDING, sizeInBytes, 0, 0);
         addImageToSelectedImages(uploadImage);
     }
 
@@ -247,12 +247,15 @@ public class UploadFragment extends Fragment implements UploadImageListener {
         for (int i = 0; i < selectedImages.size(); i++) {
             UploadImage selectedImage = selectedImages.get(i);
             selectedImage.setStatus(UploadImage.EStatus.UPLOADING);
+            long startTime = System.currentTimeMillis();
             final int tempI = i;
             UploadTask uploadTask = photoRepos.uploadFile(selectedImage);
             uploadTask
                     .addOnProgressListener(taskSnapshot -> {
                         long currentUploadSize = taskSnapshot.getBytesTransferred();
                         selectedImage.setCurUploadSizeInBytes(currentUploadSize);
+                        long elapsedTime = System.currentTimeMillis() - startTime;
+                        selectedImage.setUploadDuration(elapsedTime);
                         requireActivity().runOnUiThread(() -> {
                             uploadImageAdapter.notifyItemChanged(tempI);
                         });
@@ -274,7 +277,7 @@ public class UploadFragment extends Fragment implements UploadImageListener {
                             if (addPhotoListener != null) {
                                 Uri uri = selectedImage.getUri();
                                 long sizeInBytes = selectedImage.getSizeInBytes();
-                                Photo photo = new Photo(uri, sizeInBytes);
+                                Photo photo = new Photo(uri, sizeInBytes, 0);
                                 addPhotoListener.add(photo);
                             }
                         });

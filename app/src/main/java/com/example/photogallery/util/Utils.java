@@ -145,4 +145,31 @@ public class Utils {
             window.setBackgroundDrawable(bg);
         }
     }
+
+    public static String formatDuration(long millis) {
+        if (millis < 0) {
+            return "--";
+        }
+
+        long hours = millis / 3600000;
+        long minutes = (millis % 3600000) / 60000;
+        long seconds = ((millis % 3600000) % 60000) / 1000;
+        long milliseconds = millis % 1000;
+
+        StringBuilder sb = new StringBuilder();
+        if (hours > 0) {
+            sb.append(hours).append("h ");
+        }
+        if (minutes > 0) {
+            sb.append(minutes).append("m ");
+        }
+        if (seconds > 0) {
+            sb.append(seconds).append("s ");
+        }
+        if (milliseconds > 0) {
+            sb.append(milliseconds).append("ms");
+        }
+
+        return sb.toString().trim();
+    }
 }
