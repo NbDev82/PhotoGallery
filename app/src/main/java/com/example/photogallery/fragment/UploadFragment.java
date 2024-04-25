@@ -6,6 +6,11 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -13,20 +18,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
-import android.util.Pair;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.example.photogallery.adapter.UploadImageAdapter;
+import com.example.photogallery.customcontrol.CustomToast;
 import com.example.photogallery.databinding.FragmentUploadBinding;
 import com.example.photogallery.listener.AddPhotoListener;
+import com.example.photogallery.listener.UploadImageListener;
 import com.example.photogallery.model.Photo;
 import com.example.photogallery.model.UploadImage;
 import com.example.photogallery.repository.PhotoRepos;
-import com.example.photogallery.repository.PhotoReposImpl;
 import com.example.photogallery.util.AppExecutors;
 import com.example.photogallery.util.Utils;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,7 +38,9 @@ import com.google.firebase.storage.UploadTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UploadFragment extends Fragment {
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
+public class UploadFragment extends Fragment implements UploadImageListener {
 
     private static final String TAG = UploadImage.class.getSimpleName();
 
@@ -50,7 +51,8 @@ public class UploadFragment extends Fragment {
     private List<UploadTask> uploadTasks;
     private AddPhotoListener addPhotoListener;
 
-    public UploadFragment(AddPhotoListener addPhotoListener) {
+    public UploadFragment(PhotoRepos photoRepos, AddPhotoListener addPhotoListener) {
+        this.photoRepos = photoRepos;
         this.addPhotoListener = addPhotoListener;
     }
 
@@ -58,6 +60,10 @@ public class UploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentUploadBinding.inflate(inflater, container, false);
+
+        OverScrollDecoratorHelper.setUpOverScroll(binding.rcvImgPreview,
+                OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
         return binding.getRoot();
     }
 
@@ -66,14 +72,54 @@ public class UploadFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         selectedImages = new ArrayList<>();
-        uploadImageAdapter = new UploadImageAdapter(new ArrayList<>());
+        uploadImageAdapter = new UploadImageAdapter(new ArrayList<>(), this);
         binding.rcvImgPreview.setAdapter(uploadImageAdapter);
-        photoRepos = new PhotoReposImpl();
         uploadTasks = new ArrayList<>();
 
         binding.llEmpty.setVisibility(View.VISIBLE);
 
         setupListeners();
+    }
+
+    @Override
+    public void pause(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.pause();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.PAUSED);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
+    @Override
+    public void resume(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.resume();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.UPLOADING);
+            uploadImageAdapter.notifyItemChanged(position);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
+    @Override
+    public void cancel(int position) {
+        try {
+            UploadTask uploadTask = uploadTasks.get(position);
+            uploadTask.cancel();
+
+            UploadImage uploadImage = selectedImages.get(position);
+            uploadImage.setStatus(UploadImage.EStatus.FAILURE);
+            uploadImageAdapter.notifyItemChanged(position);
+        } catch (Exception e) {
+            Log.e(TAG, String.valueOf(e));
+        }
     }
 
     private void setupListeners() {
@@ -100,12 +146,12 @@ public class UploadFragment extends Fragment {
                     return;
                 }
 
+                cancelPreviousUploadTask();
                 clearOldSelectedImages();
 
                 Intent data = result.getData();
                 if (data == null) {
-                    Toast.makeText(requireActivity(), "You haven't picked Image", Toast.LENGTH_LONG)
-                            .show();
+                    CustomToast.showErrorToast(requireActivity(), "You haven't picked Image");
                     toggleSelectImageBtnState(false);
                     return;
                 }
@@ -133,14 +179,22 @@ public class UploadFragment extends Fragment {
     private void addUriToSelectedImages(Uri uri) {
         Pair<String, String> nameAndType = Utils.getFileName(requireContext(), uri);
         long sizeInBytes = Utils.getFileSize(requireContext(), uri);
-        UploadImage uploadImage = new UploadImage(nameAndType.first, nameAndType.second, uri, 0,
-                        UploadImage.EStatus.PENDING, sizeInBytes, 0);
+        UploadImage uploadImage = new UploadImage(nameAndType.first, nameAndType.second, uri,
+                UploadImage.EStatus.PENDING, sizeInBytes, 0);
         addImageToSelectedImages(uploadImage);
     }
 
     private void addImageToSelectedImages(UploadImage uploadImage) {
         selectedImages.add(uploadImage);
         uploadImageAdapter.setItems(selectedImages);
+    }
+
+    private void cancelPreviousUploadTask() {
+        uploadTasks.forEach(uploadTask -> {
+            if (uploadTask.isInProgress()) {
+                uploadTask.cancel();
+            }
+        });
     }
 
     private void clearOldSelectedImages() {
@@ -178,8 +232,7 @@ public class UploadFragment extends Fragment {
 
     private void handleUploadImg() {
         if (selectedImages.isEmpty()) {
-            Toast.makeText(requireActivity(), "Images is not empty", Toast.LENGTH_SHORT)
-                    .show();
+            CustomToast.showErrorToast(requireActivity(), "Images is not empty");
             return;
         }
 
@@ -197,44 +250,34 @@ public class UploadFragment extends Fragment {
             final int tempI = i;
             UploadTask uploadTask = photoRepos.uploadFile(selectedImage);
             uploadTask
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            long currentUploadSize = taskSnapshot.getBytesTransferred();
-                            int progress = (int) ((100.0 * currentUploadSize) / taskSnapshot.getTotalByteCount());
-                            Log.i(TAG, "Upload is " + progress + "% done");
+                    .addOnProgressListener(taskSnapshot -> {
+                        long currentUploadSize = taskSnapshot.getBytesTransferred();
+                        selectedImage.setCurUploadSizeInBytes(currentUploadSize);
+                        requireActivity().runOnUiThread(() -> {
+                            uploadImageAdapter.notifyItemChanged(tempI);
+                        });
 
-                            selectedImage.setCurUploadSizeInBytes(currentUploadSize);
-                            selectedImage.setProgress(progress);
-                            requireActivity().runOnUiThread(() -> {
-                                uploadImageAdapter.notifyItemChanged(tempI);
-                            });
-                        }
+                        Log.i(TAG, "Upload is " + selectedImage.getUploadProgress() + "% done");
                     })
-                    .addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.i(TAG, "Upload is paused");
+                    .addOnPausedListener(taskSnapshot -> {
+                        Log.i(TAG, "Upload is paused");
 
-                            selectedImage.setStatus(UploadImage.EStatus.PAUSED);
-                            requireActivity().runOnUiThread(() -> {
-                                uploadImageAdapter.notifyItemChanged(tempI);
-                            });
-                        }
+                        selectedImage.setStatus(UploadImage.EStatus.PAUSED);
+                        requireActivity().runOnUiThread(() -> {
+                            uploadImageAdapter.notifyItemChanged(tempI);
+                        });
                     })
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            selectedImage.setStatus(UploadImage.EStatus.SUCCESS);
-                            requireActivity().runOnUiThread(() -> {
-                                uploadImageAdapter.notifyItemChanged(tempI);
-                                if (addPhotoListener != null) {
-                                    Photo photo = new Photo(selectedImage.getUri());
-                                    addPhotoListener.add(photo);
-                                }
-                            });
-                        }
+                    .addOnSuccessListener(taskSnapshot -> {
+                        selectedImage.setStatus(UploadImage.EStatus.SUCCESS);
+                        requireActivity().runOnUiThread(() -> {
+                            uploadImageAdapter.notifyItemChanged(tempI);
+                            if (addPhotoListener != null) {
+                                Uri uri = selectedImage.getUri();
+                                long sizeInBytes = selectedImage.getSizeInBytes();
+                                Photo photo = new Photo(uri, sizeInBytes);
+                                addPhotoListener.add(photo);
+                            }
+                        });
                     })
                     .addOnFailureListener(e -> {
                         selectedImage.setStatus(UploadImage.EStatus.FAILURE);
@@ -253,8 +296,7 @@ public class UploadFragment extends Fragment {
                         toggleUploadUIState(false);
                     });
 
-                    Toast.makeText(requireActivity(), "Load successfully", Toast.LENGTH_SHORT)
-                            .show();
+                    CustomToast.showSuccessToast(requireActivity(), "Load successfully");
                 })
                 .addOnFailureListener(e -> {
                     requireActivity().runOnUiThread(() -> {

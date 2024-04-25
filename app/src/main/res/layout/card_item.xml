@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?><!-- XML implementation of Card Layout -->
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cv_layout"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="@dimen/_140sdp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center"
-    android:layout_margin="5dp"
+    app:contentPadding="@dimen/_5sdp"
+    android:layout_margin="@dimen/_5sdp"
     app:cardCornerRadius="5dp"
     app:cardElevation="5dp">
 
@@ -14,16 +16,76 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/idIVImg"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:src="@mipmap/ic_launcher" />
+        <TextView
+            android:id="@+id/idTVSizeFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:layout_gravity="end"
+            tools:text="10MB"/>
+
+        <FrameLayout
+            android:id="@+id/fl_select_img"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <RelativeLayout
+                android:id="@+id/rl_download_progress"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
+                android:visibility="gone"
+                android:layout_gravity="center">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/txv_downloaded_size"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/_10ssp"
+                        tools:text="30MB"/>
+
+                    <TextView
+                        android:id="@+id/txv_file_size"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/_10ssp"
+                        tools:text="/100MB"/>
+                </LinearLayout>
+
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/cpi_download"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:progress="30"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true" />
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/idIVImg"
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_80sdp"
+                android:layout_gravity="center"
+                android:src="@mipmap/ic_launcher"
+                tools:visibility="visible" />
+        </FrameLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
             android:orientation="horizontal">
 
             <TextView
@@ -31,15 +93,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:text="@string/app_name"
-                android:textAlignment="center" />
-
-            <TextView
-                android:id="@+id/idTVSizeFile"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/size_file"
+                tools:text="photo.png"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:textAlignment="center" />
 
             <Button
@@ -50,7 +106,5 @@
                 android:padding="0dp"
                 android:text="Delete"/>
         </LinearLayout>
-
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>

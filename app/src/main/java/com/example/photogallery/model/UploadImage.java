@@ -6,7 +6,6 @@ public class UploadImage {
     private String fileName;
     private String fileType;
     private Uri uri;
-    private int progress;
     private EStatus status;
     private long sizeInBytes;
     private long curUploadSizeInBytes;
@@ -14,23 +13,22 @@ public class UploadImage {
     public UploadImage() {
     }
 
-    public UploadImage(String fileName, String fileType, Uri uri, int progress,
-                       EStatus status, long sizeInBytes, long curUploadSizeInBytes) {
+    public UploadImage(String fileName, String fileType, Uri uri, EStatus status,
+                       long sizeInBytes, long curUploadSizeInBytes) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.uri = uri;
-        this.progress = progress;
         this.status = status;
         this.sizeInBytes = sizeInBytes;
         this.curUploadSizeInBytes = curUploadSizeInBytes;
     }
 
     public boolean isPending() {
-        return status == UploadImage.EStatus.PENDING;
+        return status == EStatus.PENDING;
     }
 
     public boolean isUploading() {
-        return status == UploadImage.EStatus.UPLOADING;
+        return status == EStatus.UPLOADING;
     }
 
     public boolean isSuccess() {
@@ -69,12 +67,8 @@ public class UploadImage {
         this.uri = uri;
     }
 
-    public int getProgress() {
-        return progress;
-    }
-
-    public void setProgress(int progress) {
-        this.progress = progress;
+    public int getUploadProgress() {
+        return (int) ((100.0 * curUploadSizeInBytes) / sizeInBytes);
     }
 
     public EStatus getStatus() {

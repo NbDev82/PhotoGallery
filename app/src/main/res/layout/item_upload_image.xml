@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@android:color/white"
     android:padding="8dp">
 
     <ImageView
@@ -101,15 +102,24 @@
             android:padding="@dimen/_8sdp"
             android:clickable="false"
             android:src="@drawable/ic_xmark_circle_solid"
-            android:visibility="gone" />
+            tools:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/img_resume"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_35sdp"
+            android:padding="@dimen/_8sdp"
+            android:background="@drawable/circle_ripple_effect"
+            android:src="@drawable/ic_skip_next_solid"
+            tools:visibility="gone" />
 
         <ImageView
             android:id="@+id/img_pause"
-            android:layout_width="@dimen/_30sdp"
-            android:layout_height="@dimen/_30sdp"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_35sdp"
             android:padding="@dimen/_8sdp"
-            android:clickable="false"
-            android:src="@drawable/ic_pause"
-            android:visibility="gone" />
+            android:background="@drawable/circle_ripple_effect"
+            android:src="@drawable/ic_circle_pause_solid"
+            tools:visibility="gone" />
     </LinearLayout>
 </RelativeLayout>

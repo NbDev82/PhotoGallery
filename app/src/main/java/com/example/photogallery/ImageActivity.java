@@ -1,18 +1,16 @@
 package com.example.photogallery;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.example.photogallery.databinding.ActivityImageBinding;
 
-public class PhotoActivity extends AppCompatActivity {
+public class ImageActivity extends AppCompatActivity {
     private ActivityImageBinding binding;
 
     @Override
@@ -21,6 +19,8 @@ public class PhotoActivity extends AppCompatActivity {
 
         binding = ActivityImageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        setupListeners();
 
         Uri uri = getIntent().getData();
 
@@ -35,5 +35,11 @@ public class PhotoActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Image is unavailable!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void setupListeners() {
+        binding.imgClose.setOnClickListener(v -> {
+            finish();
+        });
     }
 }

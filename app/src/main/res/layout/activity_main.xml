@@ -9,7 +9,9 @@
         android:id="@+id/view_pager_home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/color_background_secondary"
         android:layout_above="@id/cv_nav_bar"/>
+
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_nav_bar"
@@ -18,12 +20,28 @@
         android:outlineSpotShadowColor="@color/black"
         android:layout_alignParentBottom="true">
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bnv_home"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            app:menu="@menu/menu_bottom_nav_home"/>
+            android:orientation="vertical">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/color_primary_gray" />
+
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bnv_home"
+                style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/color_bottom_navigation_background"
+                app:itemBackground="@drawable/circle_ripple_effect"
+                app:itemIconTint="@color/bottom_navigation_text_color_selector"
+                app:itemTextColor="@color/bottom_navigation_text_color_selector"
+                app:labelVisibilityMode="selected"
+                app:menu="@menu/menu_bottom_nav_home"/>
+        </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
