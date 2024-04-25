@@ -58,7 +58,7 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
 
         public void bind(int position, UploadImage uploadImage) {
             setupBasicInfo(uploadImage);
-            setupProgressBar(uploadImage.isPending(), uploadImage.getProgress());
+            setupProgressBar(uploadImage.isPending(), uploadImage.getUploadProgress());
             setupOperations(position, uploadImage);
         }
 

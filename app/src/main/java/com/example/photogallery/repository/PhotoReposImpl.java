@@ -27,13 +27,26 @@ public class PhotoReposImpl implements PhotoRepos {
                 .addOnSuccessListener(listResult -> {
                     List<Uri> imageUris = new ArrayList<>();
                     for (StorageReference item : listResult.getItems()) {
-                        item.getDownloadUrl().addOnSuccessListener(uri -> {
+                        item
+                                .getDownloadUrl()
+                                .addOnSuccessListener(uri -> {
                             imageUris.add(uri);
                             if (imageUris.size() == listResult.getItems().size()) {
                                 onSuccessListener.onSuccess(imageUris);
                             }
                         });
                     }
+                })
+                .addOnFailureListener(onFailureListener);
+    }
+
+    @Override
+    public void fetchAllImages(final OnSuccessListener<List<StorageReference>> onSuccessListener,
+                               final OnFailureListener onFailureListener) {
+        storageReference.listAll()
+                .addOnSuccessListener(listResult -> {
+                    List<StorageReference> storageReferences = listResult.getItems();
+                    onSuccessListener.onSuccess(storageReferences);
                 })
                 .addOnFailureListener(onFailureListener);
     }

@@ -138,7 +138,7 @@ public class UploadFragment extends Fragment implements UploadImageListener {
     private void addUriToSelectedImages(Uri uri) {
         Pair<String, String> nameAndType = Utils.getFileName(requireContext(), uri);
         long sizeInBytes = Utils.getFileSize(requireContext(), uri);
-        UploadImage uploadImage = new UploadImage(nameAndType.first, nameAndType.second, uri, 0,
+        UploadImage uploadImage = new UploadImage(nameAndType.first, nameAndType.second, uri,
                         UploadImage.EStatus.PENDING, sizeInBytes, 0);
         addImageToSelectedImages(uploadImage);
     }
@@ -209,44 +209,37 @@ public class UploadFragment extends Fragment implements UploadImageListener {
             final int tempI = i;
             UploadTask uploadTask = photoRepos.uploadFile(selectedImage);
             uploadTask
-                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            long currentUploadSize = taskSnapshot.getBytesTransferred();
-                            int progress = (int) ((100.0 * currentUploadSize) / taskSnapshot.getTotalByteCount());
-                            Log.i(TAG, "Upload is " + progress + "% done");
+                    .addOnProgressListener(taskSnapshot -> {
+                        long currentUploadSize = taskSnapshot.getBytesTransferred();
+                        selectedImage.setCurUploadSizeInBytes(currentUploadSize);
+                        requireActivity().runOnUiThread(() -> {
+                            uploadImageAdapter.notifyItemChanged(tempI);
+                        });
 
-                            selectedImage.setCurUploadSizeInBytes(currentUploadSize);
-                            selectedImage.setProgress(progress);
-                            requireActivity().runOnUiThread(() -> {
-                                uploadImageAdapter.notifyItemChanged(tempI);
-                            });
-                        }
+                        Log.i(TAG, "Upload is " + selectedImage.getUploadProgress() + "% done");
                     })
-                    .addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.i(TAG, "Upload is paused");
+                    .addOnPausedListener(taskSnapshot -> {
+                        Log.i(TAG, "Upload is paused");
 
-                            selectedImage.setStatus(UploadImage.EStatus.PAUSED);
-                            requireActivity().runOnUiThread(() -> {
-                                uploadImageAdapter.notifyItemChanged(tempI);
-                            });
-                        }
+                        selectedImage.setStatus(UploadImage.EStatus.PAUSED);
+                        requireActivity().runOnUiThread(() -> {
+                            uploadImageAdapter.notifyItemChanged(tempI);
+                        });
                     })
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                            selectedImage.setStatus(UploadImage.EStatus.SUCCESS);
-                            requireActivity().runOnUiThread(() -> {
-                                uploadImageAdapter.notifyItemChanged(tempI);
-                                if (addPhotoListener != null) {
-                                    Photo photo = new Photo(selectedImage.getUri());
-                                    addPhotoListener.add(photo);
-                                }
-                            });
-                        }
+                    .addOnSuccessListener(taskSnapshot -> {
+                        selectedImage.setStatus(UploadImage.EStatus.SUCCESS);
+                        requireActivity().runOnUiThread(() -> {
+                            uploadImageAdapter.notifyItemChanged(tempI);
+                            if (addPhotoListener != null) {
+                                Uri uri = selectedImage.getUri();
+                                Photo.EStatus status = Photo.EStatus.SUCCESS;
+                                long sizeInBytes = selectedImage.getSizeInBytes();
+                                long curUploadSizeInBytes = selectedImage.getCurUploadSizeInBytes();
+                                Photo photo = new Photo(uri, status,
+                                        sizeInBytes, curUploadSizeInBytes);
+                                addPhotoListener.add(photo);
+                            }
+                        });
                     })
                     .addOnFailureListener(e -> {
                         selectedImage.setStatus(UploadImage.EStatus.FAILURE);

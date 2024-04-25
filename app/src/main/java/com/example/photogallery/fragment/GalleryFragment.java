@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,15 @@ import com.example.photogallery.listener.AddPhotoListener;
 import com.example.photogallery.listener.PhotoListener;
 import com.example.photogallery.model.Photo;
 import com.example.photogallery.repository.PhotoRepos;
+import com.example.photogallery.util.Utils;
 
 import java.util.ArrayList;
 
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 public class GalleryFragment extends Fragment implements PhotoListener, AddPhotoListener {
+    private static final String TAG = GalleryFragment.class.getSimpleName();
+
     private PhotoAdapter mPhotoAdapter;
     private ArrayList<Photo> mPhotos;
 
@@ -55,21 +59,6 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
         loadImages();
     }
 
-    private void loadImages() {
-        if(mPhotoAdapter.isEmpty()) {
-            photoRepos.fetchAllImageUris(
-                    imageUris -> {
-                        for (Uri uri : imageUris) {
-                            Photo photo = new Photo(uri);
-                            mPhotoAdapter.addImage(photo);
-                        }
-                    },
-                    e -> {
-                        Log.e("Fetch Error", "Failed to fetch image URIs: " + e.getMessage());
-                    });
-        }
-    }
-
     @Override
     public void onImageClick(Photo photo) {
         Intent intent = new Intent(getContext(), PhotoActivity.class);
@@ -97,5 +86,22 @@ public class GalleryFragment extends Fragment implements PhotoListener, AddPhoto
                     Log.e("Delete Error", "Failed to delete image: " + e.getMessage());
                 }
         );
+    }
+
+    private void loadImages() {
+        if (!mPhotoAdapter.isEmpty()) {
+            return;
+        }
+
+        photoRepos.fetchAllImageUris(uris -> {
+            for (Uri uri : uris) {
+                Pair<String, String> nameAndType = Utils.getFileName(requireActivity(), uri);
+                long fileSize = Utils.getFileSize(requireActivity(), uri);
+                Photo photo = new Photo(uri, Photo.EStatus.DOWNLOADING, fileSize, 0);
+                mPhotoAdapter.addImage(photo);
+            }
+        }, e -> {
+            Log.e(TAG, String.valueOf(e));
+        });
     }
 }
